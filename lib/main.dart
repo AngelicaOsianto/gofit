@@ -2,17 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 
-// Import Provider Asli yang baru dibuat
+// --- IMPORT PROVIDER ---
 import 'providers/auth_provider.dart';
-// Import Halaman Login (Nanti ini diisi Anggota B, sementara error/merah gpp atau di komen dulu)
-// import 'screens/auth/login_screen.dart';
+import 'providers/activity_provider.dart'; // <--- Pastikan ini ada
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(); // Konek ke Firebase
   runApp(const GoFitApp());
 }
 
+// --- PERBAIKAN: CLASS DI KEMBALIKAN ---
 class GoFitApp extends StatelessWidget {
   const GoFitApp({super.key});
 
@@ -20,8 +20,15 @@ class GoFitApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        // Panggil AuthProvider yang ASLI (bukan dummy lagi)
-        ChangeNotifierProvider(create: (_) => AuthProvider()..checkLoginStatus()),
+        // 1. Provider Auth (Login)
+        ChangeNotifierProvider(
+          create: (_) => AuthProvider()..checkLoginStatus(),
+        ),
+
+        // 2. Provider Activity (Hitung Kalori & Simpan Data)
+        ChangeNotifierProvider(
+          create: (_) => ActivityProvider(),
+        ),
       ],
       child: MaterialApp(
         title: 'GoFit App',
@@ -37,30 +44,43 @@ class GoFitApp extends StatelessWidget {
           ),
           useMaterial3: true,
         ),
-        // SEMENTARA MASIH PAKAI CEK KONEKSI
-        // Nanti Anggota B yang akan mengubah ini jadi LoginScreen()
+        // SEMENTARA: Masih pakai Cek Koneksi (Nanti diganti Anggota B)
         home: const CekKoneksiScreen(),
       ),
     );
   }
 }
 
-// Class CekKoneksiScreen biarkan saja di bawah sini sebagai placeholder
+// --- LAYAR TESTING ---
 class CekKoneksiScreen extends StatelessWidget {
   const CekKoneksiScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("GoFit System Check"), backgroundColor: Colors.green[800]),
+      appBar: AppBar(
+        title: const Text("GoFit System Check"),
+        backgroundColor: Colors.green[800],
+      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Icon(Icons.check_circle, color: Colors.green, size: 100),
             const SizedBox(height: 20),
-            const Text("FIREBASE TERHUBUNG!", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
+            const Text(
+              "BACKEND READY!",
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
             const SizedBox(height: 10),
-            const Text("Backend Auth sudah siap.", style: TextStyle(color: Colors.grey)),
+            const Text(
+              "Auth & Activity Provider Terdaftar.",
+              style: TextStyle(color: Colors.grey),
+            ),
           ],
         ),
       ),
