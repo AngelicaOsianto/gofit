@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/theme.dart';
+<<<<<<< Updated upstream
 import '../home_screen.dart';
 import 'register_screen.dart';
 
@@ -15,10 +16,18 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passController = TextEditingController();
   bool _isObscure = true;
 
+=======
+import '../home/home_screen.dart';
+import '../home_screen.dart';
+
+class LoginScreen extends StatelessWidget {
+  const LoginScreen({super.key});
+>>>>>>> Stashed changes
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
+<<<<<<< Updated upstream
         width: double.infinity,
         height: double.infinity,
         decoration: const BoxDecoration(
@@ -96,6 +105,24 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 const SizedBox(height: 40),
                 Row(mainAxisAlignment: MainAxisAlignment.center, children: [const Text("Don't have an account? ", style: TextStyle(color: Colors.white)), GestureDetector(onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterScreen())), child: const Text("Sign Up", style: TextStyle(color: AppTheme.neonGreen, fontWeight: FontWeight.bold)))]),
+=======
+        decoration: const BoxDecoration(gradient: LinearGradient(colors: [AppTheme.darkGreen, AppTheme.blackBg], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              children: [
+                Align(alignment: Alignment.centerLeft, child: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.white), onPressed: () => Navigator.pop(context))),
+                const SizedBox(height: 20),
+                const Text("Welcome Back!", style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white)),
+                const SizedBox(height: 50),
+                // (Input Email & Password Sederhana)
+                Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(12)), child: const Text("Email", style: TextStyle(color: Colors.grey))),
+                const SizedBox(height: 20),
+                Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(12)), child: const Text("Password", style: TextStyle(color: Colors.grey))),
+                const Spacer(),
+                ElevatedButton(onPressed: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const HomeScreen()), (route) => false), child: const Text("Log In")),
+>>>>>>> Stashed changes
                 const SizedBox(height: 20),
               ],
             ),
@@ -104,6 +131,9 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+<<<<<<< Updated upstream
   Widget _lbl(String t) => Padding(padding: const EdgeInsets.only(bottom: 8), child: Text(t, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)));
   Widget _in(String h, TextEditingController c) => Container(decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(12)), child: TextField(controller: c, style: const TextStyle(color: Colors.white), decoration: InputDecoration(hintText: h, hintStyle: const TextStyle(color: Colors.white60), border: InputBorder.none, contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14))));
+=======
+>>>>>>> Stashed changes
 }

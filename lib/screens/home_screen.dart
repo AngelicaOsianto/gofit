@@ -4,6 +4,10 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../main.dart';
 import '../../core/theme.dart';
+<<<<<<< Updated upstream
+=======
+import '../../services/weather_service.dart';
+>>>>>>> Stashed changes
 import '../add_activity/add_activity_screen.dart';
 import 'add_activity/add_activity_screen.dart';
 
@@ -287,8 +291,11 @@ class _HomeScreenState extends State<HomeScreen> {
       ],
     );
   }
+<<<<<<< Updated upstream
 }
 
 class WeatherService {
   Future getWeather(String s) async {}
+=======
+>>>>>>> Stashed changes
 }
