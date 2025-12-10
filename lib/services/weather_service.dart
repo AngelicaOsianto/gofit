@@ -4,6 +4,10 @@ import 'package:http/http.dart' as http;
 class WeatherService {
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+  // API Key kamu
+>>>>>>> Stashed changes
 =======
   // API Key kamu
 >>>>>>> Stashed changes
@@ -17,9 +21,12 @@ class WeatherService {
     final url = Uri.parse('$baseUrl?q=$cityName&appid=$apiKey&units=metric');
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     try {
       final response = await http.get(url);
 =======
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 
@@ -27,6 +34,9 @@ class WeatherService {
       final response = await http.get(url);
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes

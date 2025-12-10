@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme.dart';
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 import '../home/home_screen.dart'; // Masuk ke Home kalau berhasil login
 import '../home_screen.dart';
 import 'register_screen.dart';     // Pindah ke Sign Up kalau belum punya akun
@@ -21,12 +22,17 @@ class _LoginScreenState extends State<LoginScreen> {
 =======
 =======
 >>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
 import '../home/home_screen.dart';
 import '../home_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
@@ -34,6 +40,7 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
         width: double.infinity,
@@ -233,6 +240,8 @@ class LoginScreen extends StatelessWidget {
 =======
 =======
 >>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
         decoration: const BoxDecoration(gradient: LinearGradient(colors: [AppTheme.darkGreen, AppTheme.blackBg], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
         child: SafeArea(
           child: Padding(
@@ -250,6 +259,9 @@ class LoginScreen extends StatelessWidget {
                 const Spacer(),
                 ElevatedButton(onPressed: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const HomeScreen()), (route) => false), child: const Text("Log In")),
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
@@ -261,6 +273,7 @@ class LoginScreen extends StatelessWidget {
       ),
     );
   }
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 
@@ -294,6 +307,8 @@ class LoginScreen extends StatelessWidget {
       ),
     );
   }
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 =======
