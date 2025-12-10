@@ -18,12 +18,6 @@ class ActivityProvider extends ChangeNotifier {
     'Lari Cepat': 9.8,
     'Jalan Kaki': 3.8,
     'Bersepeda': 7.5,
-    'Berenang': 8.0,
-    'Yoga': 2.5,
-    'Angkat Beban': 3.5,
-    'Futsal': 7.0,
-    'Badminton': 5.5,
-    'Rebahan': 1.0, // Istirahat
   };
 
   // --- RUMUS PINTAR HITUNG KALORI ---

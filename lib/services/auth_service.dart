@@ -39,5 +39,5 @@ class AuthService {
   Future<void> signOut() async {
     await _auth.signOut();
   }
-}}
+}
 //untuk login/Register ke Firebase

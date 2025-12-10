@@ -16,6 +16,8 @@ class AuthProvider extends ChangeNotifier {
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
+  String? get userName => null;
+
   // Cek status login saat aplikasi baru dibuka
   void checkLoginStatus() {
     _user = _authService.currentUser;
@@ -62,4 +64,6 @@ class AuthProvider extends ChangeNotifier {
     _isLoading = value;
     notifyListeners();
   }
+
+  void setUserName(String fullName) {}
 }

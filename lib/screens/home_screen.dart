@@ -1,11 +1,10 @@
-import 'dart:async'; // WAJIB ADA: Untuk jam berjalan
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import '../../main.dart';
 import '../../core/theme.dart';
 import '../../services/weather_service.dart';
-import '../add_activity/add_activity_screen.dart';
+import '../providers/auth_provider.dart';
 import 'add_activity/add_activity_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -20,8 +19,8 @@ class _HomeScreenState extends State<HomeScreen> {
   String temp = "0";
   String desc = "Loading...";
   String cityName = "Gowa";
-  String feelsLike = "0";
   String iconCode = "01d";
+  // String feelsLike = "0"; // Kita matikan dulu karena Model backend belum support ini
 
   // Variabel Jam
   String _timeString = "00:00";
@@ -34,39 +33,41 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _fetchWeather();
-    _startClock(); // Mulai jalankan jam
+    _startClock();
   }
 
   @override
   void dispose() {
-    _timer.cancel(); // Matikan jam kalau keluar aplikasi biar hemat baterai
+    _timer.cancel();
     super.dispose();
   }
 
-  // Fungsi Jam Berjalan (Real-time)
   void _startClock() {
-    _updateTime(); // Set awal
+    _updateTime();
     _timer = Timer.periodic(const Duration(seconds: 1), (Timer t) => _updateTime());
   }
 
   void _updateTime() {
+    if (!mounted) return; // Cek agar tidak error saat pindah layar
     final DateTime now = DateTime.now();
     setState(() {
-      _timeString = DateFormat('HH:mm').format(now); // Contoh: 09:03
-      _dateString = DateFormat('EEEE, d MMM yyyy').format(now); // Contoh: Thursday, 31 Aug 2025
+      _timeString = DateFormat('HH:mm').format(now);
+      _dateString = DateFormat('EEEE, d MMM yyyy').format(now);
     });
   }
 
-  // Fungsi Ambil Cuaca
+  // --- PERBAIKAN 1: PANGGIL CUACA PAKAI TITIK (.) BUKAN KURUNG SIKU [] ---
   void _fetchWeather() async {
     try {
-      final data = await _weatherService.getWeather("Gowa");
+      final data = await _weatherService.getWeather("Gowa"); // data ini tipe-nya WeatherModel
+      if (!mounted) return;
+
       setState(() {
-        temp = data['main']['temp'].toStringAsFixed(0);
-        feelsLike = data['main']['feels_like'].toStringAsFixed(0);
-        desc = data['weather'][0]['main'];
-        cityName = data['name'];
-        iconCode = data['weather'][0]['icon'];
+        // Karena ini Object, panggilnya pakai titik
+        temp = data.temperature.toStringAsFixed(0);
+        desc = data.description;
+        cityName = data.cityName;
+        iconCode = data.iconCode;
       });
     } catch (e) {
       print("Error cuaca: $e");
@@ -75,12 +76,24 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Ambil Nama Depan User
-    String fullName = Provider.of<AuthProvider>(context).userName;
-    String firstName = fullName.split(' ')[0];
+    // --- PERBAIKAN 2: AMBIL NAMA DARI FIREBASE USER ---
+    // AuthProvider Asli tidak punya 'userName', tapi punya 'user' (dari Firebase)
+    final authProvider = Provider.of<AuthProvider>(context);
+    final user = authProvider.user;
+
+    // Ambil nama dari email (karena nama asli mungkin belum diset saat register)
+    // Contoh: "budi@gmail.com" -> diambil "budi"
+    String fullName = user?.email?.split('@')[0] ?? "Runner";
+
+    // Huruf kapital di awal (opsional, biar rapi)
+    if (fullName.isNotEmpty) {
+      fullName = fullName[0].toUpperCase() + fullName.substring(1);
+    }
+
+    String firstName = fullName; // Sementara pakai satu kata dulu
 
     return Scaffold(
-      backgroundColor: AppTheme.blackBg,
+      backgroundColor: AppTheme.blackBg, // Pastikan warna ini ada di theme.dart, kalau error ganti Colors.black
 
       body: SafeArea(
         child: SingleChildScrollView(
@@ -89,7 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
 
-              // 1. HEADER (Sapaan Nama)
+              // 1. HEADER
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -106,8 +119,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ],
                   ),
-
-                  // Tombol Lonceng
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
@@ -122,7 +133,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
               const SizedBox(height: 30),
 
-              // 2. WEATHER CARD (DESAIN SESUAI GAMBAR)
+              // 2. WEATHER CARD
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
@@ -133,27 +144,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Kiri: Lokasi, Cuaca, Tanggal, JAM BESAR
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(cityName, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppTheme.neonGreen)),
                         Text(desc, style: const TextStyle(fontSize: 16, color: AppTheme.neonGreen)),
-
                         const SizedBox(height: 15),
-
-                        // Tanggal Kuning
                         Text(_dateString, style: const TextStyle(fontSize: 12, color: Color(0xFFC1FF00))),
-
-                        // JAM BESAR (Real-time)
                         Text(
                             _timeString,
                             style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: AppTheme.neonGreen)
                         ),
                       ],
                     ),
-
-                    // Kanan: Icon & Suhu
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
@@ -163,7 +166,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           errorBuilder: (context, error, stackTrace) => const Icon(Icons.cloud, color: Colors.white, size: 50),
                         ),
                         Text("$temp°C", style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Colors.white)),
-                        Text("Feels: $feelsLike°C", style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                        // Text("Feels: $feelsLike°C", style: const TextStyle(fontSize: 12, color: Colors.grey)), // Dimatikan sementara
                       ],
                     ),
                   ],
@@ -172,7 +175,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
               const SizedBox(height: 30),
 
-              // 3. MY PROGRESS
+              // 3. MY PROGRESS (Statik dulu gapapa)
               const Text("My Progress", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
               const SizedBox(height: 15),
 
@@ -185,9 +188,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _buildProgressItem(Icons.access_time, "Total Duration", "200m"),
-                    _buildProgressItem(Icons.local_fire_department, "Total Calories", "350kl"),
-                    _buildProgressItem(Icons.directions_run, "Total Activities", "4 act"),
+                    _buildProgressItem(Icons.access_time, "Total Duration", "0m"),
+                    _buildProgressItem(Icons.local_fire_department, "Total Calories", "0kl"),
+                    _buildProgressItem(Icons.directions_run, "Total Activities", "0 act"),
                   ],
                 ),
               ),
@@ -203,9 +206,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
               const SizedBox(height: 5),
-              Align(
+              const Align(
                 alignment: Alignment.centerRight,
-                child: Text("You Have 2 Planned Activity", style: const TextStyle(color: Colors.white, fontSize: 12)),
+                child: Text("Planned Activity", style: TextStyle(color: Colors.white, fontSize: 12)),
               ),
               const SizedBox(height: 15),
 
@@ -221,31 +224,23 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Container(
                       width: 130,
-                      padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         color: const Color(0xFF2C2C2C),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("Lari Bareng\n$firstName", style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                          const Spacer(),
-                          const Text("Running", style: TextStyle(color: Colors.grey, fontSize: 12)),
-                          const Text("10:00 AM", style: TextStyle(color: Colors.grey, fontSize: 12)),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 15),
-
-                    Container(
-                      width: 130,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF2C2C2C),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Center(
-                        child: Icon(Icons.add, size: 40, color: Colors.grey),
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text("Add Activity", style: TextStyle(color: Colors.grey)),
+                            IconButton(
+                              icon: const Icon(Icons.add_circle, color: AppTheme.neonGreen, size: 40),
+                              onPressed: () {
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => const AddActivityScreen()));
+                              },
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -262,19 +257,8 @@ class _HomeScreenState extends State<HomeScreen> {
         child: const Icon(Icons.add, color: Colors.black),
       ),
 
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.black,
-        selectedItemColor: AppTheme.neonGreen,
-        unselectedItemColor: Colors.grey,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.directions_run), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.timer), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.history), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: ''),
-        ],
-      ),
+      // Bottom Bar dihapus saja kalau sudah ada di MainWrapper/PageController
+      // Tapi kalau mau dipakai di sini, biarkan saja
     );
   }
 
