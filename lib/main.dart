@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
+import 'core/theme.dart';
+import 'screens/splash_screen.dart';
 
 // --- IMPORT PROVIDER ---
 import 'providers/auth_provider.dart';
@@ -9,6 +11,9 @@ import 'providers/activity_provider.dart'; // <--- Pastikan ini ada
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(); // Konek ke Firebase
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const GoFitApp());
 }
 
@@ -29,6 +34,7 @@ class GoFitApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => ActivityProvider(),
         ),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
       ],
       child: MaterialApp(
         title: 'GoFit App',
@@ -46,6 +52,8 @@ class GoFitApp extends StatelessWidget {
         ),
         // SEMENTARA: Masih pakai Cek Koneksi (Nanti diganti Anggota B)
         home: const CekKoneksiScreen(),
+        theme: AppTheme.darkTheme,
+        home: const SplashScreen(),
       ),
     );
   }
@@ -85,5 +93,15 @@ class CekKoneksiScreen extends StatelessWidget {
         ),
       ),
     );
+// --- OTAK APLIKASI (PROVIDER) ---
+class AuthProvider with ChangeNotifier {
+  String _userName = "Runner"; // Nama Default
+
+  String get userName => _userName;
+
+  // Fungsi simpan nama dari Sign Up
+  void setUserName(String name) {
+    _userName = name;
+    notifyListeners();
   }
 }
