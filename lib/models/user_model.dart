@@ -1,0 +1,1 @@
+//simpan nama, email, berat badan

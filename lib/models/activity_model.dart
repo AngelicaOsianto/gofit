@@ -1,0 +1,1 @@
+//simpan jenis, durasi, kalori, tanggal
