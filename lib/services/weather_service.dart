@@ -3,6 +3,10 @@ import 'package:http/http.dart' as http;
 
 class WeatherService {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+  // API Key kamu
+>>>>>>> Stashed changes
 =======
   // API Key kamu
 >>>>>>> Stashed changes
@@ -12,13 +16,19 @@ class WeatherService {
   Future<Map<String, dynamic>> getWeather(String cityName) async {
     final url = Uri.parse('$baseUrl?q=$cityName&appid=$apiKey&units=metric');
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     try {
       final response = await http.get(url);
 =======
+=======
+>>>>>>> Stashed changes
 
     try {
       final response = await http.get(url);
 
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
       if (response.statusCode == 200) {
         return jsonDecode(response.body);

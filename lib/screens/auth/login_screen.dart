@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/theme.dart';
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 import '../home/home_screen.dart'; // Masuk ke Home kalau berhasil login
 import '../home_screen.dart';
 import 'register_screen.dart';     // Pindah ke Sign Up kalau belum punya akun
@@ -18,16 +19,22 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isObscure = true; // Untuk menyembunyikan password
 
 =======
+=======
+>>>>>>> Stashed changes
 import '../home/home_screen.dart';
 import '../home_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
         width: double.infinity,
         height: double.infinity,
@@ -224,6 +231,8 @@ class LoginScreen extends StatelessWidget {
                 ),
 
 =======
+=======
+>>>>>>> Stashed changes
         decoration: const BoxDecoration(gradient: LinearGradient(colors: [AppTheme.darkGreen, AppTheme.blackBg], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
         child: SafeArea(
           child: Padding(
@@ -240,6 +249,9 @@ class LoginScreen extends StatelessWidget {
                 Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(12)), child: const Text("Password", style: TextStyle(color: Colors.grey))),
                 const Spacer(),
                 ElevatedButton(onPressed: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const HomeScreen()), (route) => false), child: const Text("Log In")),
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
                 const SizedBox(height: 20),
               ],
@@ -249,6 +261,7 @@ class LoginScreen extends StatelessWidget {
       ),
     );
   }
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 
   // Helper untuk Label
@@ -281,6 +294,8 @@ class LoginScreen extends StatelessWidget {
       ),
     );
   }
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 }
