@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "105072351264",
+    "project_id": "go-fit-c36e8",
+    "storage_bucket": "go-fit-c36e8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:105072351264:android:60dd848b197ddfc33b0445",
+        "android_client_info": {
+          "package_name": "com.example.gofit"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDse4kElfUNJQXcA_sOuGJkFAmEQF5DxcU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
