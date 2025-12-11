@@ -1,16 +1,15 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
-
+import 'firebase_options.dart';
 import 'core/theme.dart';
-import 'providers/activity_provider.dart';
-import 'providers/notification_provider.dart';
-import 'providers/page_provider.dart';
 import 'screens/splash_screen.dart';
+import 'providers/auth_provider.dart';
+import 'providers/activity_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const GoFitApp());
 }
 
@@ -23,8 +22,6 @@ class GoFitApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => ActivityProvider()),
-        ChangeNotifierProvider(create: (_) => NotificationProvider()),
-        ChangeNotifierProvider(create: (_) => PageProvider()),
       ],
       child: MaterialApp(
         title: 'GoFit App',
@@ -33,39 +30,5 @@ class GoFitApp extends StatelessWidget {
         home: const SplashScreen(),
       ),
     );
-  }
-}
-
-// --- OTAK APLIKASI (AUTH PROVIDER) ---
-class AuthProvider with ChangeNotifier {
-  String _userName = "Runner";
-  String _email = "user@gofit.com";
-  String _weight = "60"; // Default
-  String _height = "170"; // Default
-
-  // Getters
-  String get userName => _userName;
-  String get email => _email;
-  String get weight => _weight;
-  String get height => _height;
-
-  // Fungsi simpan data lengkap saat Register
-  void registerUser({
-    required String name,
-    required String email,
-    required String weight,
-    required String height,
-  }) {
-    _userName = name;
-    _email = email;
-    _weight = weight;
-    _height = height;
-    notifyListeners();
-  }
-
-  // Update nama saja (opsional)
-  void setUserName(String name) {
-    _userName = name;
-    notifyListeners();
   }
 }

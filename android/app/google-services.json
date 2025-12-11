@@ -12,7 +12,12 @@
           "package_name": "com.example.gofit"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "105072351264-mj8r2ooib5hj69ps2rvsvcr4vki9cfl6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDse4kElfUNJQXcA_sOuGJkFAmEQF5DxcU"
@@ -20,7 +25,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "105072351264-mj8r2ooib5hj69ps2rvsvcr4vki9cfl6.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "105072351264-advk0eee9n2edgs824e66lecdmu7arpi.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.gofit"
+              }
+            }
+          ]
         }
       }
     }
