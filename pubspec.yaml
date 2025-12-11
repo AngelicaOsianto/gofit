@@ -30,19 +30,32 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+<<<<<<< HEAD
     
   provider: ^6.1.1
   http: ^1.1.0  #untuk weather_services.dart
+=======
+
+  # 1. State Management (Untuk simpan Nama User)
+  provider: ^6.1.5+1
+>>>>>>> branchB-activity
 
   # 2. Firebase (Versi Baru)
   firebase_core: ^3.6.0
   firebase_auth: ^5.3.1
   cloud_firestore: ^5.4.4
 
+<<<<<<< HEAD
   intl: ^0.19.0
+=======
+  # 3. Internet & Format (Untuk Cuaca & Tanggal)
+  http: ^1.1.0
+  intl: ^0.20.2
+>>>>>>> branchB-activity
 
   # 4. Icons
   cupertino_icons: ^1.0.8
+  uuid: ^4.5.2
 
 dev_dependencies:
   flutter_test:

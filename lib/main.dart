@@ -34,6 +34,8 @@ class GoFitApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => ActivityProvider(),
         ),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => ActivityProvider()), // Tambahkan ActivityProvider di sini
       ],
       child: MaterialApp(
         title: 'GoFit App',
@@ -45,6 +47,7 @@ class GoFitApp extends StatelessWidget {
 
         // Mulai dari Splash Screen buatan teman
         home: const SplashScreen(),
+        home: const SplashScreen(), // Splash akan mengarah ke Login/Main
       ),
     );
   }
