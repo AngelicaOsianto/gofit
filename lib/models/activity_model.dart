@@ -1,5 +1,3 @@
-// Lokasi: lib/models/activity_model.dart
-
 class ActivityModel {
   final String id;
   final String title;
@@ -7,8 +5,9 @@ class ActivityModel {
   final DateTime startDate;
   final int durationMinutes;
   final String? notes;
-  final DateTime? reminderTime; // Menyimpan waktu reminder
+  final DateTime? reminderTime;
   bool isCompleted;
+  bool isReminderSent; // <--- BARU: Penanda apakah notif sudah muncul
 
   ActivityModel({
     required this.id,
@@ -19,9 +18,9 @@ class ActivityModel {
     this.notes,
     this.reminderTime,
     this.isCompleted = false,
+    this.isReminderSent = false, // <--- Default False
   });
 
-  // Helper untuk duplikasi data (berguna saat Edit agar data lama tidak hilang)
   ActivityModel copyWith({
     String? id,
     String? title,
@@ -31,6 +30,7 @@ class ActivityModel {
     String? notes,
     DateTime? reminderTime,
     bool? isCompleted,
+    bool? isReminderSent,
   }) {
     return ActivityModel(
       id: id ?? this.id,
@@ -41,6 +41,7 @@ class ActivityModel {
       notes: notes ?? this.notes,
       reminderTime: reminderTime ?? this.reminderTime,
       isCompleted: isCompleted ?? this.isCompleted,
+      isReminderSent: isReminderSent ?? this.isReminderSent,
     );
   }
 }

@@ -1,15 +1,12 @@
-// Lokasi: lib/screens/activity/activity_form_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../models/activity_model.dart';
 import '../../providers/activity_provider.dart';
+import '../../providers/notification_provider.dart';
 
 class ActivityFormScreen extends StatefulWidget {
   static const routeName = '/activity-form';
-
-  // Jika null = Mode Tambah. Jika ada isi = Mode Edit.
   final String? activityId;
 
   const ActivityFormScreen({super.key, this.activityId});
@@ -20,45 +17,32 @@ class ActivityFormScreen extends StatefulWidget {
 
 class _ActivityFormScreenState extends State<ActivityFormScreen> {
   final _formKey = GlobalKey<FormState>();
-
-  // Controller
   final _titleController = TextEditingController();
   final _notesController = TextEditingController();
   final _durationController = TextEditingController();
 
-  // State Variables
   String _selectedType = 'Running';
   DateTime _selectedDate = DateTime.now();
   TimeOfDay _selectedTime = TimeOfDay.now();
-
-  // Variabel untuk Reminder
   DateTime? _reminderDateTime;
-
   bool _isInit = true;
 
   @override
   void didChangeDependencies() {
     if (_isInit) {
       if (widget.activityId != null) {
-        // --- MODE EDIT: ISI DATA LAMA ---
         final provider = Provider.of<ActivityProvider>(context, listen: false);
-
         try {
-          // Cari activity berdasarkan ID
           final existingActivity = provider.activities.firstWhere((a) => a.id == widget.activityId);
-
           _titleController.text = existingActivity.title;
           _notesController.text = existingActivity.notes ?? '';
           _durationController.text = existingActivity.durationMinutes.toString();
           _selectedType = existingActivity.type;
           _selectedDate = existingActivity.startDate;
           _selectedTime = TimeOfDay.fromDateTime(existingActivity.startDate);
-
-          // Load Reminder jika ada
           _reminderDateTime = existingActivity.reminderTime;
-
         } catch (e) {
-          // Jika ID tidak ditemukan (aman)
+          // ignore error
         }
       }
       _isInit = false;
@@ -77,20 +61,35 @@ class _ActivityFormScreenState extends State<ActivityFormScreen> {
   void _saveForm() {
     if (!_formKey.currentState!.validate()) return;
 
-    final provider = Provider.of<ActivityProvider>(context, listen: false);
+    final activityProvider = Provider.of<ActivityProvider>(context, listen: false);
+    final notificationProvider = Provider.of<NotificationProvider>(context, listen: false);
 
-    // Gabungkan Date & Time
     final finalStartDate = DateTime(
         _selectedDate.year, _selectedDate.month, _selectedDate.day,
         _selectedTime.hour, _selectedTime.minute
     );
 
+    // --- VALIDASI WAJIB: REMINDER TIDAK BOLEH LEWAT WAKTU MULAI ---
+    if (_reminderDateTime != null) {
+      if (_reminderDateTime!.isAfter(finalStartDate)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Error: Waktu Reminder tidak boleh melewati Waktu Mulai Latihan!"),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 3),
+          ),
+        );
+        return; // STOP!
+      }
+    }
+
     final int duration = int.tryParse(_durationController.text) ?? 0;
 
+    // ... (Sisa kode simpan sama seperti sebelumnya) ...
+    // LOGIKA SIMPAN KE PROVIDER:
     if (widget.activityId == null) {
-      // --- SAVE NEW ---
       final newActivity = ActivityModel(
-        id: provider.generateId(),
+        id: activityProvider.generateId(),
         title: _titleController.text,
         type: _selectedType,
         startDate: finalStartDate,
@@ -98,16 +97,21 @@ class _ActivityFormScreenState extends State<ActivityFormScreen> {
         notes: _notesController.text,
         reminderTime: _reminderDateTime,
       );
-      provider.addActivity(newActivity);
+      activityProvider.addActivity(newActivity);
+
+      if (_reminderDateTime != null) {
+        notificationProvider.addNotification(
+            "Reminder Set: ${_titleController.text}",
+            "Don't forget to $_selectedType at ${DateFormat('HH:mm').format(_reminderDateTime!)}",
+            _reminderDateTime!
+        );
+      }
     } else {
-      // --- UPDATE EXISTING ---
       bool oldStatus = false;
-      try {
-        oldStatus = provider.activities.firstWhere((a) => a.id == widget.activityId).isCompleted;
-      } catch (e) { /* ignore */ }
+      try { oldStatus = activityProvider.activities.firstWhere((a) => a.id == widget.activityId).isCompleted; } catch (e) {}
 
       final updatedActivity = ActivityModel(
-        id: widget.activityId!, // Dijamin tidak null karena masuk blok else
+        id: widget.activityId!,
         title: _titleController.text,
         type: _selectedType,
         startDate: finalStartDate,
@@ -116,20 +120,25 @@ class _ActivityFormScreenState extends State<ActivityFormScreen> {
         reminderTime: _reminderDateTime,
         isCompleted: oldStatus,
       );
-      provider.updateActivity(widget.activityId!, updatedActivity);
+      activityProvider.updateActivity(widget.activityId!, updatedActivity);
+
+      if (_reminderDateTime != null) {
+        notificationProvider.addNotification(
+            "Reminder Updated: ${_titleController.text}",
+            "Schedule updated to ${DateFormat('HH:mm').format(_reminderDateTime!)}",
+            _reminderDateTime!
+        );
+      }
     }
 
     Navigator.of(context).pop();
   }
+  // --- Logic Date/Time Picker dan UI (Sama seperti sebelumnya, tidak diubah) ---
+  // ... (Gunakan kode build() dari jawaban sebelumnya)
+  // Untuk menghemat ruang, saya hanya menampilkan bagian _saveForm yang diperbaiki untuk mengatasi "Async Gap"
+  // Pastikan Anda menyalin kode UI (build method) dari jawaban saya sebelumnya.
 
-  void _deleteActivity() {
-    if (widget.activityId != null) {
-      Provider.of<ActivityProvider>(context, listen: false).deleteActivity(widget.activityId!);
-      Navigator.of(context).pop();
-    }
-  }
-
-  // --- Date Picker Logic ---
+  // FUNGSI PICKER LENGKAP:
   Future<void> _pickDate() async {
     final picked = await showDatePicker(
       context: context,
@@ -145,7 +154,6 @@ class _ActivityFormScreenState extends State<ActivityFormScreen> {
     if (picked != null) setState(() => _selectedTime = picked);
   }
 
-  // --- Logic Khusus Reminder (Date + Time) ---
   Future<void> _pickReminder() async {
     final now = DateTime.now();
     final datePicked = await showDatePicker(
@@ -155,8 +163,7 @@ class _ActivityFormScreenState extends State<ActivityFormScreen> {
       lastDate: DateTime(2030),
     );
 
-    if (datePicked != null) {
-      // ignore: use_build_context_synchronously
+    if (datePicked != null && mounted) {
       final timePicked = await showTimePicker(
         context: context,
         initialTime: _reminderDateTime != null
@@ -172,6 +179,14 @@ class _ActivityFormScreenState extends State<ActivityFormScreen> {
           );
         });
       }
+    }
+  }
+
+  // (Paste method deleteActivity dan Widget build dari jawaban sebelumnya di sini)
+  void _deleteActivity() {
+    if (widget.activityId != null) {
+      Provider.of<ActivityProvider>(context, listen: false).deleteActivity(widget.activityId!);
+      Navigator.of(context).pop();
     }
   }
 
@@ -204,22 +219,19 @@ class _ActivityFormScreenState extends State<ActivityFormScreen> {
           key: _formKey,
           child: ListView(
             children: [
-              // Title
               TextFormField(
                 controller: _titleController,
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
                   labelText: "Activity Title",
                   labelStyle: const TextStyle(color: Colors.grey),
-                  filled: true,
-                  fillColor: Colors.grey[900],
+                  filled: true, fillColor: Colors.grey[900],
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                 ),
                 validator: (val) => val!.isEmpty ? "Please enter a title" : null,
               ),
               const SizedBox(height: 16),
 
-              // Notes
               TextFormField(
                 controller: _notesController,
                 style: const TextStyle(color: Colors.white),
@@ -227,14 +239,12 @@ class _ActivityFormScreenState extends State<ActivityFormScreen> {
                 decoration: InputDecoration(
                   labelText: "Notes",
                   labelStyle: const TextStyle(color: Colors.grey),
-                  filled: true,
-                  fillColor: Colors.grey[900],
+                  filled: true, fillColor: Colors.grey[900],
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                 ),
               ),
               const SizedBox(height: 16),
 
-              // Type Dropdown
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(color: Colors.grey[900], borderRadius: BorderRadius.circular(10)),
@@ -255,7 +265,6 @@ class _ActivityFormScreenState extends State<ActivityFormScreen> {
               const Text("Scheduling", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
 
-              // Date & Time Picker (Start Date)
               Row(
                 children: [
                   Expanded(
@@ -297,7 +306,6 @@ class _ActivityFormScreenState extends State<ActivityFormScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Duration
               TextFormField(
                 controller: _durationController,
                 style: const TextStyle(color: Colors.white),
@@ -305,8 +313,7 @@ class _ActivityFormScreenState extends State<ActivityFormScreen> {
                 decoration: InputDecoration(
                   labelText: "Duration (minutes)",
                   labelStyle: const TextStyle(color: Colors.green),
-                  filled: true,
-                  fillColor: Colors.grey[900],
+                  filled: true, fillColor: Colors.grey[900],
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                   prefixIcon: const Icon(Icons.timer, color: Colors.green),
                 ),
@@ -317,7 +324,6 @@ class _ActivityFormScreenState extends State<ActivityFormScreen> {
               const Text("Reminders", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
 
-              // --- REMINDER PICKER TOOL ---
               GestureDetector(
                 onTap: _pickReminder,
                 child: Container(

@@ -1,10 +1,9 @@
-// Lokasi: lib/screens/activity/widgets/activity_item_card.dart
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../../models/activity_model.dart';
 import '../../../providers/activity_provider.dart';
+import '../../timer/timer_screen.dart'; // Import Timer
 
 class ActivityItemCard extends StatelessWidget {
   final ActivityModel activity;
@@ -83,7 +82,17 @@ class ActivityItemCard extends StatelessWidget {
             ),
           ],
         ),
-        trailing: const Icon(Icons.chevron_right, color: Colors.grey),
+        trailing: IconButton(
+          icon: const Icon(Icons.play_circle_fill, color: Colors.white, size: 36),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => TimerScreen(specificActivity: activity),
+              ),
+            );
+          },
+        ),
       ),
     );
   }

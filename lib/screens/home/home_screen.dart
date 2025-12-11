@@ -6,10 +6,11 @@ import 'package:intl/intl.dart';
 import '../../main.dart';
 import '../../core/theme.dart';
 import '../../services/weather_service.dart';
-import '../../providers/activity_provider.dart'; // Import Provider
-import '../../models/activity_model.dart'; // Import Model
-import '../activity/activity_list_screen.dart'; // Import untuk navigasi "See Activity"
-import '../main_screen.dart'; // Import MainScreen untuk akses navigasi navbar
+import '../../providers/activity_provider.dart';
+import '../../models/activity_model.dart';
+import '../../providers/notification_provider.dart';
+import '../notification/notification_screen.dart';
+import '../../providers/page_provider.dart'; // <--- IMPORT INI
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -19,13 +20,10 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // --- Variabel Cuaca ---
   String temp = "0";
   String desc = "Loading...";
-  String cityName = "Gowa";
+  String cityName = "Palu";
   String iconCode = "01d";
-
-  // --- Variabel Jam ---
   String _timeString = "00:00";
   String _dateString = "";
   late Timer _timer;
@@ -50,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _updateTime() {
-    final DateTime now = DateTime.now();
+    final DateTime now = DateTime.now().toUtc().add(const Duration(hours: 8)); // WITA
     if (mounted) {
       setState(() {
         _timeString = DateFormat('HH:mm').format(now);
@@ -61,7 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _fetchWeather() async {
     try {
-      final data = await _weatherService.getWeather("Gowa");
+      final data = await _weatherService.getWeather("Palu");
       if (mounted) {
         setState(() {
           temp = data['main']['temp'].toStringAsFixed(0);
@@ -77,14 +75,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Ambil Data User
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     String firstName = authProvider.userName.split(' ')[0];
-
-    // Ambil Data Activity dari Provider
     final activityProvider = Provider.of<ActivityProvider>(context);
     final activities = activityProvider.activities;
-    final recentActivities = activities.take(5).toList(); // Ambil 5 data terbaru
+    final recentActivities = activities.take(5).toList();
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -92,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 1. HEADER
+            // HEADER
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -103,43 +98,55 @@ class _HomeScreenState extends State<HomeScreen> {
                     Text("It's time to challenge your limits", style: TextStyle(fontSize: 14, color: Colors.white.withValues(alpha: 0.7))),
                   ],
                 ),
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
-                  ),
-                  child: const Icon(Icons.notifications, color: Colors.white),
+                Consumer<NotificationProvider>(
+                  builder: (context, notifProvider, child) {
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => const NotificationScreen()));
+                      },
+                      child: Stack(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.1), shape: BoxShape.circle, border: Border.all(color: Colors.white.withValues(alpha: 0.2))),
+                            child: const Icon(Icons.notifications, color: Colors.white),
+                          ),
+                          if (notifProvider.unreadCount > 0)
+                            Positioned(
+                              right: 0, top: 0,
+                              child: Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+                                constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+                                child: Text('${notifProvider.unreadCount}', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+                              ),
+                            ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
-
             const SizedBox(height: 30),
 
-            // 2. WEATHER CARD (SESUAI DESAIN HOME (3).PNG)
+            // WEATHER CARD
             Container(
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: const Color(0xFF1E1E1E),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: AppTheme.neonGreen), // Border Hijau Neon
-              ),
+              decoration: BoxDecoration(color: const Color(0xFF1E1E1E), borderRadius: BorderRadius.circular(20), border: Border.all(color: AppTheme.neonGreen)),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Bagian Kiri (Lokasi, Cuaca, Jam)
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(cityName, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppTheme.neonGreen)),
                       Text(desc, style: const TextStyle(fontSize: 16, color: AppTheme.neonGreen)),
                       const SizedBox(height: 15),
-                      Text(_dateString, style: const TextStyle(fontSize: 12, color: Color(0xFFC1FF00))), // Tanggal Kuning
-                      Text(_timeString, style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: AppTheme.neonGreen)), // Jam Besar Hijau
+                      Text(_dateString, style: const TextStyle(fontSize: 12, color: Color(0xFFC1FF00))),
+                      Text(_timeString, style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: AppTheme.neonGreen)),
                     ],
                   ),
-                  // Bagian Kanan (Icon & Suhu)
                   Column(
                     children: [
                       Image.network('https://openweathermap.org/img/wn/$iconCode@2x.png', width: 70, height: 70, errorBuilder: (_,__,___) => const Icon(Icons.cloud, color: Colors.white, size: 50)),
@@ -149,19 +156,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-
             const SizedBox(height: 30),
 
-            // 3. MY PROGRESS
+            // PROGRESS
             const Text("My Progress", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
             const SizedBox(height: 15),
             Container(
               padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: AppTheme.neonGreen), // Border Hijau sesuai desain
-                color: Colors.transparent, // Background transparan/hitam
-              ),
+              decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), border: Border.all(color: AppTheme.neonGreen), color: Colors.transparent),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
@@ -171,43 +173,33 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-
             const SizedBox(height: 30),
 
-            // 4. MY ACTIVITY SECTION (SESUAI DESAIN)
+            // MY ACTIVITY SECTION
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text("My Activity", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
-                // Tombol "See Activity" (Navigasi ke Tab Activity)
+                // --- NAVIGASI DIPERBAIKI ---
                 GestureDetector(
                   onTap: () {
-                    // Cari MainScreenState dan pindah ke tab index 1
-                    final mainState = context.findAncestorStateOfType<State<MainScreen>>();
-                    // Catatan: Jika cara di atas sulit karena struktur, user bisa manual klik navbar.
-                    // Tapi ini hanya teks visual.
+                    // Pindah ke Tab Activity (Index 1)
+                    Provider.of<PageProvider>(context, listen: false).setPage(1);
                   },
                   child: const Text("See Activity >", style: TextStyle(color: AppTheme.neonGreen, fontWeight: FontWeight.bold)),
                 ),
               ],
             ),
-            // Teks Kecil di Kanan "You Have X Planned Activity"
+
             Align(
               alignment: Alignment.centerRight,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 4.0),
-                child: Text(
-                  "You Have ${activities.length} Planned Activity",
-                  style: const TextStyle(color: Colors.white70, fontSize: 12),
-                ),
-              ),
+              child: Padding(padding: const EdgeInsets.only(top: 4.0), child: Text("You Have ${activities.length} Planned Activity", style: const TextStyle(color: Colors.white70, fontSize: 12))),
             ),
-
             const SizedBox(height: 15),
 
-            // LIST HORIZONTAL ACTIVITY CARD
+            // LIST ACTIVITY
             SizedBox(
-              height: 140, // Tinggi kartu agar muat konten vertikal
+              height: 140,
               child: recentActivities.isEmpty
                   ? _buildEmptyState()
                   : ListView.builder(
@@ -219,17 +211,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 },
               ),
             ),
-
-            const SizedBox(height: 80), // Space bawah agar tidak tertutup navbar
+            const SizedBox(height: 80),
           ],
         ),
       ),
     );
   }
 
-  // --- WIDGET HELPER ---
-
-  // 1. Item Progress
   Widget _buildProgressItem(IconData icon, String title, String value) {
     return Column(
       children: [
@@ -241,43 +229,20 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // 2. KARTU ACTIVITY (DESAIN KOTAK VERTIKAL SEPERTI HOME(3).PNG)
   Widget _buildActivityCard(ActivityModel activity) {
     return Container(
-      width: 130, // Lebar kotak
-      margin: const EdgeInsets.only(right: 15),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: const Color(0xFF2C2C2C), // Warna Abu Gelap
-        borderRadius: BorderRadius.circular(16),
-      ),
+      width: 130, margin: const EdgeInsets.only(right: 15), padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(color: const Color(0xFF2C2C2C), borderRadius: BorderRadius.circular(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Judul Activity (Putih, Bold)
-          Text(
-            activity.title,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
-          ),
-
-          const Spacer(), // Dorong konten ke bawah
-
-          // Row Bawah: Tipe & Jam
+          Text(activity.title, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+          const Spacer(),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Tipe Activity (Running/Walking...)
-              Text(
-                activity.type,
-                style: const TextStyle(color: Colors.grey, fontSize: 11),
-              ),
-              // Jam (10:00 AM)
-              Text(
-                DateFormat('hh:mm a').format(activity.startDate),
-                style: const TextStyle(color: Colors.grey, fontSize: 11),
-              ),
+              Text(activity.type, style: const TextStyle(color: Colors.grey, fontSize: 11)),
+              Text(DateFormat('HH:mm').format(activity.startDate), style: const TextStyle(color: Colors.grey, fontSize: 11)),
             ],
           )
         ],
@@ -285,21 +250,11 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // 3. Tampilan Kosong
   Widget _buildEmptyState() {
     return Container(
       width: double.infinity,
-      decoration: BoxDecoration(
-        color: const Color(0xFF2C2C2C),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
-      ),
-      child: const Center(
-        child: Text(
-          "No planned activities yet.",
-          style: TextStyle(color: Colors.grey),
-        ),
-      ),
+      decoration: BoxDecoration(color: const Color(0xFF2C2C2C), borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey.withValues(alpha: 0.2))),
+      child: const Center(child: Text("No planned activities yet.", style: TextStyle(color: Colors.grey))),
     );
   }
 }
