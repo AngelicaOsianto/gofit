@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/theme.dart';
-import '../home/home_screen.dart';
-import '../home_screen.dart';
+import '../main_screen.dart'; // PERBAIKAN: Import MainScreen, bukan home_screen.dart
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -36,7 +35,7 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 const SizedBox(height: 20),
 
-                // --- LOGO BULAT (BEDA DENGAN SPLASH) ---
+                // LOGO
                 Container(
                   padding: const EdgeInsets.all(15),
                   decoration: const BoxDecoration(
@@ -44,19 +43,19 @@ class _LoginScreenState extends State<LoginScreen> {
                     color: Colors.white,
                   ),
                   child: Image.asset(
-                    'assets/images/Logo.png', // <-- Pastikan nama filenya Logo.png
+                    'assets/images/Logo.png',
                     width: 80,
                     height: 80,
+                    errorBuilder: (context, error, stackTrace) => const Icon(Icons.fitness_center, size: 80, color: Colors.black),
                   ),
                 ),
-                // ---------------------------------------
 
                 const SizedBox(height: 20),
-                const Text("Welcome!", style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white)),
+                const Text("Welcome Back!", style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white)),
                 const SizedBox(height: 40),
 
                 Align(alignment: Alignment.centerLeft, child: _lbl("Email")),
-                _in("Enter your email or username", _emailController),
+                _in("Enter your email", _emailController),
                 const SizedBox(height: 20),
 
                 Align(alignment: Alignment.centerLeft, child: _lbl("Password")),
@@ -71,7 +70,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       hintStyle: const TextStyle(color: Colors.white60),
                       border: InputBorder.none,
                       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                      suffixIcon: IconButton(icon: Icon(_isObscure ? Icons.visibility_off : Icons.visibility, color: Colors.white60), onPressed: () => setState(() => _isObscure = !_isObscure)),
+                      suffixIcon: IconButton(
+                          icon: Icon(_isObscure ? Icons.visibility_off : Icons.visibility, color: Colors.white60),
+                          onPressed: () => setState(() => _isObscure = !_isObscure)
+                      ),
                     ),
                   ),
                 ),
@@ -79,8 +81,17 @@ class _LoginScreenState extends State<LoginScreen> {
                 Align(alignment: Alignment.centerRight, child: TextButton(onPressed: () {}, child: const Text("Forgot Password?", style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold, decoration: TextDecoration.underline)))),
 
                 const SizedBox(height: 20),
+
+                // TOMBOL LOGIN
                 ElevatedButton(
-                  onPressed: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const HomeScreen()), (route) => false),
+                  onPressed: () {
+                    // PERBAIKAN: Navigasi ke MainScreen (Punya Navbar)
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => const MainScreen()),
+                            (route) => false
+                    );
+                  },
                   style: ElevatedButton.styleFrom(backgroundColor: AppTheme.neonGreen, foregroundColor: Colors.black, minimumSize: const Size(double.infinity, 55), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
                   child: const Text("Log In", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 ),
@@ -96,7 +107,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
 
                 const SizedBox(height: 40),
-                Row(mainAxisAlignment: MainAxisAlignment.center, children: [const Text("Don't have an account? ", style: TextStyle(color: Colors.white)), GestureDetector(onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterScreen())), child: const Text("Sign Up", style: TextStyle(color: AppTheme.neonGreen, fontWeight: FontWeight.bold)))]),
+                Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  const Text("Don't have an account? ", style: TextStyle(color: Colors.white)),
+                  GestureDetector(
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterScreen())),
+                      child: const Text("Sign Up", style: TextStyle(color: AppTheme.neonGreen, fontWeight: FontWeight.bold))
+                  )
+                ]),
                 const SizedBox(height: 20),
               ],
             ),
@@ -105,6 +122,15 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+
   Widget _lbl(String t) => Padding(padding: const EdgeInsets.only(bottom: 8), child: Text(t, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)));
-  Widget _in(String h, TextEditingController c) => Container(decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(12)), child: TextField(controller: c, style: const TextStyle(color: Colors.white), decoration: InputDecoration(hintText: h, hintStyle: const TextStyle(color: Colors.white60), border: InputBorder.none, contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14))));
+
+  Widget _in(String h, TextEditingController c) => Container(
+      decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(12)),
+      child: TextField(
+          controller: c,
+          style: const TextStyle(color: Colors.white),
+          decoration: InputDecoration(hintText: h, hintStyle: const TextStyle(color: Colors.white60), border: InputBorder.none, contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14))
+      )
+  );
 }
