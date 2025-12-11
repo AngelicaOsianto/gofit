@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:uuid/uuid.dart';
+import 'package:uuid/uuid.dart'; // Pastikan package ini ada di pubspec.yaml
 import '../models/activity_model.dart';
 
 class ActivityProvider with ChangeNotifier {
-  final Uuid _uuid = const Uuid(); // Inisialisasi UUID yang benar
+  // Gunakan UUID untuk generate ID unik
+  final Uuid _uuid = const Uuid();
 
   // Data Dummy Awal
   final List<ActivityModel> _activities = [
@@ -13,6 +14,11 @@ class ActivityProvider with ChangeNotifier {
       type: "Running",
       startDate: DateTime.now(),
       durationMinutes: 60,
+
+      // --- PERBAIKANNYA ADA DI SINI ---
+      calories: "300 kcal", // <--- Baris ini WAJIB ADA karena Model memintanya
+      // -------------------------------
+
       isCompleted: false,
     ),
   ];
