@@ -23,7 +23,7 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       backgroundColor: AppTheme.neonGreen,
       body: Center(child: Image.asset(
-        'assets/images/Splash.png', // Coba cek lagi, 'Splash.png' atau 'splash.png'?
+        'assets/image/Logo-GoFit.png', // Coba cek lagi, 'Splash.png' atau 'splash.png'?
         width: 150,
         height: 150, // Tambahkan tinggi biar tidak gepeng
         fit: BoxFit.contain, // Pastikan gambar muat di kotak
